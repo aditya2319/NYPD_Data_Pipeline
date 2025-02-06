@@ -1,0 +1,12 @@
+{
+	"name": "AzureKeyVault1_ls",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Provide access to key vault for adf",
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://damg7370kv25.vault.azure.net/"
+		}
+	}
+}
