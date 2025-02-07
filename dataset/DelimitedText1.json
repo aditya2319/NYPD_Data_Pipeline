@@ -1,0 +1,52 @@
+{
+	"name": "DelimitedText1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Seattle_Pet_Licenses_20250203.csv",
+				"fileSystem": "bronze"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "License_Issue_Date",
+				"type": "String"
+			},
+			{
+				"name": "License_Number",
+				"type": "String"
+			},
+			{
+				"name": "Animals_Name",
+				"type": "String"
+			},
+			{
+				"name": "Species",
+				"type": "String"
+			},
+			{
+				"name": "Primary_Breed",
+				"type": "String"
+			},
+			{
+				"name": "Secondary_Breed",
+				"type": "String"
+			},
+			{
+				"name": "ZIP_Code",
+				"type": "String"
+			}
+		]
+	}
+}
