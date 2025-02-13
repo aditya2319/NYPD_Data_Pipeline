@@ -12,7 +12,15 @@
 					"name": "NYC"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SnowflakeTable2",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "nulls"
@@ -55,9 +63,56 @@
 				"          Longitude = iif(isNull(Longitude), -1.0, Longitude),",
 				"          Latitude = iif(isNull(Latitude), -1.0, Latitude),",
 				"          {New Georeferenced Column} = iif(isNull({New Georeferenced Column}), 'UNKNOWN', {New Georeferenced Column})) ~> nulls",
-				"nulls derive(ARREST_DATE = toDate(ARREST_DATE, 'MM/dd/yyyy')\r",
-				"\r",
-				") ~> date"
+				"nulls derive(ARREST_DATE = toDate(ARREST_DATE, 'MM/dd/yyyy')) ~> date",
+				"date sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ARREST_ID as string,",
+				"          ARREST_BOROUGH as string,",
+				"          ARREST_PRECINCT as string,",
+				"          ARREST_JURISDICTION as string,",
+				"          CRIMES_ID as string,",
+				"          PD_DESC as string,",
+				"          OFFENSE_CAT as string,",
+				"          LAW_CODE as string,",
+				"          LAW_CATEGORY as string,",
+				"          CRIMINAL_ID as string,",
+				"          AGE as string,",
+				"          SEX as string,",
+				"          RACE as string,",
+				"          DATE_ID as string,",
+				"          DT as string,",
+				"          LONGITUDE as string,",
+				"          LATITUDE as string,",
+				"          GEOREFERENCE as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_JOB_DATE as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          ARREST_ID = ARREST_KEY,",
+				"          ARREST_BOROUGH = ARREST_BORO,",
+				"          ARREST_PRECINCT,",
+				"          ARREST_JURISDICTION = JURISDICTION_CODE,",
+				"          PD_DESC,",
+				"          OFFENSE_CAT = OFNS_DESC,",
+				"          LAW_CODE,",
+				"          LAW_CATEGORY = LAW_CAT_CD,",
+				"          AGE = AGE_GROUP,",
+				"          SEX = PERP_SEX,",
+				"          RACE = PERP_SEX,",
+				"          DT = ARREST_DATE,",
+				"          LONGITUDE = Longitude,",
+				"          LATITUDE = Latitude,",
+				"          GEOREFERENCE = {New Georeferenced Column}",
+				"     )) ~> sink1"
 			]
 		}
 	}
