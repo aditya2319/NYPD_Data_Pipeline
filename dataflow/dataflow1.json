@@ -1,0 +1,64 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "NYPD_DATA",
+						"type": "DatasetReference"
+					},
+					"name": "NYC"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "nulls"
+				},
+				{
+					"name": "date",
+					"description": "Creating/updating the columns  ARREST_DATE"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ARREST_KEY as string,",
+				"          ARREST_DATE as string,",
+				"          PD_CD as integer,",
+				"          PD_DESC as string,",
+				"          KY_CD as integer,",
+				"          OFNS_DESC as string,",
+				"          LAW_CODE as string,",
+				"          LAW_CAT_CD as string,",
+				"          ARREST_BORO as string,",
+				"          ARREST_PRECINCT as integer,",
+				"          JURISDICTION_CODE as integer,",
+				"          AGE_GROUP as string,",
+				"          PERP_SEX as string,",
+				"          PERP_RACE as string,",
+				"          X_COORD_CD as integer,",
+				"          Y_COORD_CD as integer,",
+				"          Latitude as float,",
+				"          Longitude as float,",
+				"          {New Georeferenced Column} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     limit: 100,",
+				"     ignoreNoFilesFound: false) ~> NYC",
+				"NYC derive(PD_CD = iif(isNull(PD_CD), -1, PD_CD),",
+				"          KY_CD = iif(isNull(KY_CD), -1, KY_CD),",
+				"          OFNS_DESC = iif(equals(OFNS_DESC, '(null)'), 'UNKNOWN', OFNS_DESC),",
+				"          PD_DESC = iif(equals(PD_DESC, '(null)'), 'UNKNOWN', PD_DESC),",
+				"          Longitude = iif(isNull(Longitude), -1.0, Longitude),",
+				"          Latitude = iif(isNull(Latitude), -1.0, Latitude),",
+				"          {New Georeferenced Column} = iif(isNull({New Georeferenced Column}), 'UNKNOWN', {New Georeferenced Column})) ~> nulls",
+				"nulls derive(ARREST_DATE = toDate(ARREST_DATE, 'MM/dd/yyyy')\r",
+				"\r",
+				") ~> date"
+			]
+		}
+	}
+}
