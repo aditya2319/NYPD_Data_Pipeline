@@ -1,9 +1,9 @@
 {
-	"name": "pipeline2",
+	"name": "INDIVIDUAL_PROJECT_PIPELINE",
 	"properties": {
 		"activities": [
 			{
-				"name": "Data flow1",
+				"name": "outputsnowflake",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -15,6 +15,10 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
+					"dataflow": {
+						"referenceName": "INDIVIDUAL_PROJECT_DATA_FLOW",
+						"type": "DataFlowReference"
+					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
