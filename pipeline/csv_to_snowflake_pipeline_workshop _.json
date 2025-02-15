@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "csv_to_snowflake_pipeline_workshop _",
 	"properties": {
 		"activities": [
 			{
