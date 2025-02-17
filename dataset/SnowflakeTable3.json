@@ -1,5 +1,5 @@
 {
-	"name": "stage_table_v2_pet_license",
+	"name": "SnowflakeTable3",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Snowflake1",
@@ -9,31 +9,41 @@
 		"type": "SnowflakeV2Table",
 		"schema": [
 			{
-				"name": "LICENSE_ISSUE_DATE",
+				"name": "BREED_SK",
+				"type": "NUMBER",
+				"precision": 10,
+				"scale": 0
+			},
+			{
+				"name": "START_DT",
+				"type": "DATE"
+			},
+			{
+				"name": "IS_CURRENT",
+				"type": "NUMBER",
+				"precision": 10,
+				"scale": 0
+			},
+			{
+				"name": "END_DT",
+				"type": "DATE"
+			},
+			{
+				"name": "BREED_DK",
+				"type": "NUMBER",
+				"precision": 10,
+				"scale": 0
+			},
+			{
+				"name": "SPECIES_NAME",
 				"type": "VARCHAR"
 			},
 			{
-				"name": "LICENSE_NUMBER",
+				"name": "PRIMARY_BREED_NAME",
 				"type": "VARCHAR"
 			},
 			{
-				"name": "ANIMAL_NAME",
-				"type": "VARCHAR"
-			},
-			{
-				"name": "SPECIES",
-				"type": "VARCHAR"
-			},
-			{
-				"name": "PRIMARY_BREED",
-				"type": "VARCHAR"
-			},
-			{
-				"name": "SECONDARY_BREED",
-				"type": "VARCHAR"
-			},
-			{
-				"name": "ZIP_CODE",
+				"name": "SECONDARY_BREED_NAME",
 				"type": "VARCHAR"
 			},
 			{
@@ -47,7 +57,7 @@
 		],
 		"typeProperties": {
 			"schema": "PRACTICE_SCHEMA",
-			"table": "PET_LICENSE_STAGE_V2"
+			"table": "BREED_DIM"
 		}
 	}
 }

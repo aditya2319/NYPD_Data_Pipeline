@@ -1,5 +1,5 @@
 {
-	"name": "SnowflakeTable3",
+	"name": "nypd_stage_table",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Snowflake2",

@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "clean_data_stage_load",
+				"name": "Data flow1",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -19,10 +19,7 @@
 						"referenceName": "seattle_data_flow",
 						"type": "DataFlowReference",
 						"parameters": {
-							"Di_job_id": {
-								"value": "'@{substring(pipeline().RunId,1,10)}'",
-								"type": "Expression"
-							}
+							"Di_job_id": "uuid()"
 						}
 					},
 					"compute": {

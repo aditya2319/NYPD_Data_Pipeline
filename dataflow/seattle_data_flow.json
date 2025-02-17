@@ -19,6 +19,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "snowflakeStageTable"
+				},
+				{
+					"dataset": {
+						"referenceName": "BREED_DIM",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
 				}
 			],
 			"transformations": [
@@ -47,10 +54,7 @@
 				"     ignoreNoFilesFound: false) ~> source1",
 				"source1 derive(License_Issue_Date = toDate(License_Issue_Date, 'MMMM d yyyy'),",
 				"          Secondary_Breed = iifNull(Secondary_Breed, 'unknown'),",
-				"          Di_job_id = uuid()\r",
-				"\r",
-				"\r",
-				",",
+				"          Di_job_id = uuid(),",
 				"          {DI-Load_dt} = currentTimestamp(),",
 				"          Animals_Name = translate({Animals_Name}, '()[]',''),",
 				"          License_Number = toInteger(translate(License_Number,'S','')),",
@@ -100,7 +104,32 @@
 				"          ZIP_CODE = ZIP_Code,",
 				"          DI_JOB_ID = Di_job_id,",
 				"          DI_LOAD_DT = {DI-Load_dt}",
-				"     )) ~> snowflakeStageTable"
+				"     )) ~> snowflakeStageTable",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          BREED_SK as string,",
+				"          SPECIES_NAME as string,",
+				"          PRIMARY_BREED_NAME as string,",
+				"          SECONDARY_BREED_NAME as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          SPECIES_NAME = Species,",
+				"          PRIMARY_BREED_NAME = Primary_Breed,",
+				"          SECONDARY_BREED_NAME = Secondary_Breed,",
+				"          DI_JOB_ID = Di_job_id,",
+				"          DI_LOAD_DT = {DI-Load_dt}",
+				"     )) ~> sink1"
 			]
 		}
 	}

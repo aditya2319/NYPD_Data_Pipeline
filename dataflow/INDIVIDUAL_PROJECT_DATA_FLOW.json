@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable3",
+						"referenceName": "nypd_stage_table",
 						"type": "DatasetReference"
 					},
 					"name": "output"

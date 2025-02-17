@@ -5,16 +5,12 @@
 		"typeProperties": {
 			"sources": [
 				{
-					"dataset": {
-						"referenceName": "SnowflakeTable5",
-						"type": "DatasetReference"
-					},
 					"name": "sourceStageTable",
 					"description": "Import data from staging table"
 				},
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable6",
+						"referenceName": "SnowflakeTable3",
 						"type": "DatasetReference"
 					},
 					"name": "BreedDIMMaxID"
@@ -24,23 +20,14 @@
 			"transformations": [
 				{
 					"name": "join1"
+				},
+				{
+					"name": "aggregate1"
 				}
 			],
 			"scriptLines": [
-				"source(output(",
-				"          LICENSE_ISSUE_DATE as string,",
-				"          LICENSE_NUMBER as string,",
-				"          ANIMAL_NAME as string,",
-				"          SPECIES as string,",
-				"          PRIMARY_BREED as string,",
-				"          SECONDARY_BREED as string,",
-				"          ZIP_CODE as string,",
-				"          DI_JOB_ID as string,",
-				"          DI_LOAD_DT as string",
-				"     ),",
-				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     format: 'table') ~> sourceStageTable",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false) ~> sourceStageTable",
 				"source(output(",
 				"          MAXBREEDSK as decimal(10,0)",
 				"     ),",
@@ -52,7 +39,12 @@
 				"     joinType:'cross',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1"
+				"     broadcast: 'auto')~> join1",
+				"join1 aggregate(groupBy(SPECIES,",
+				"          PRIMARY_BREED,",
+				"          SECONDARY_BREED,",
+				"          MAXBREEDSK),",
+				"     COUNT_ROW = count(LICENSE_NUMBER)) ~> aggregate1"
 			]
 		}
 	}
