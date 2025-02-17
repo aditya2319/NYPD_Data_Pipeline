@@ -6,19 +6,34 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "DelimitedText2",
+						"referenceName": "DelimitedText1",
 						"type": "DatasetReference"
 					},
 					"name": "source1"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SnowflakeTable4",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
 				}
 			],
 			"scriptLines": [
+				"parameters{",
+				"     Di_job_id as string,",
+				"     parameter1 as string",
+				"}",
 				"source(output(",
 				"          License_Issue_Date as string,",
 				"          License_Number as string,",
@@ -32,7 +47,47 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> source1",
 				"source1 derive(License_Issue_Date = toDate(License_Issue_Date, 'YYYY MM DD'),",
-				"          Secondary_Breed = iifNull(Secondary_Breed, 'unknown')) ~> derivedColumn1"
+				"          Secondary_Breed = iifNull(Secondary_Breed, 'unknown'),",
+				"          Di_job_id = $Di_job_id,",
+				"          {DI-Load_dt} = currentDate(),",
+				"          Animals_Name = translate({Animals_Name}, '()[]',''),",
+				"          License_Number = toInteger(translate(License_Number,'S','')),",
+				"          Species = upper(Species),",
+				"          ZIP_Code = lpad(toString(ZIP_Code), 5,'0')) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          License_Issue_Date,",
+				"          License_Number,",
+				"          Animals_Name,",
+				"          Species,",
+				"          Primary_Breed,",
+				"          Secondary_Breed,",
+				"          ZIP_Code,",
+				"          Di_job_id,",
+				"          {DI-Load_dt}",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          LICENSE_ISSUE_DATE as string,",
+				"          LICENSE_NUMBER as string,",
+				"          ANIMAL_NAME as string,",
+				"          SPECIES as string,",
+				"          PRIMARY_BREED as string,",
+				"          SECONDARY_BREED as string,",
+				"          ZIP_CODE as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     stageInsert: true) ~> sink1"
 			]
 		}
 	}
