@@ -5,15 +5,26 @@
 		"typeProperties": {
 			"sources": [
 				{
+					"dataset": {
+						"referenceName": "stage_table_v2_pet_license",
+						"type": "DatasetReference"
+					},
 					"name": "sourceStageTable",
 					"description": "Import data from staging table"
 				},
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable3",
+						"referenceName": "BREED_DIM",
 						"type": "DatasetReference"
 					},
 					"name": "BreedDIMMaxID"
+				},
+				{
+					"dataset": {
+						"referenceName": "BREED_DIM",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
 				}
 			],
 			"sinks": [],
@@ -23,11 +34,29 @@
 				},
 				{
 					"name": "aggregate1"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "filter1"
 				}
 			],
 			"scriptLines": [
-				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> sourceStageTable",
+				"source(output(",
+				"          LICENSE_ISSUE_DATE as string,",
+				"          LICENSE_NUMBER as string,",
+				"          ANIMAL_NAME as string,",
+				"          SPECIES as string,",
+				"          PRIMARY_BREED as string,",
+				"          SECONDARY_BREED as string,",
+				"          ZIP_CODE as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> sourceStageTable",
 				"source(output(",
 				"          MAXBREEDSK as decimal(10,0)",
 				"     ),",
@@ -35,6 +64,17 @@
 				"     validateSchema: false,",
 				"     query: 'SELECT NVL(MAX(BREED_SK),0) AS MaxBreedSK From BREED_DIM',",
 				"     format: 'query') ~> BreedDIMMaxID",
+				"source(output(",
+				"          BREED_SK as string,",
+				"          SPECIES_NAME as string,",
+				"          PRIMARY_BREED_NAME as string,",
+				"          SECONDARY_BREED_NAME as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> source1",
 				"sourceStageTable, BreedDIMMaxID join(1==1,",
 				"     joinType:'cross',",
 				"     matchType:'exact',",
@@ -44,7 +84,15 @@
 				"          PRIMARY_BREED,",
 				"          SECONDARY_BREED,",
 				"          MAXBREEDSK),",
-				"     COUNT_ROW = count(LICENSE_NUMBER)) ~> aggregate1"
+				"     COUNT_ROW = count(LICENSE_NUMBER)) ~> aggregate1",
+				"aggregate1, source1 join(PRIMARY_BREED == PRIMARY_BREED_NAME",
+				"     && SECONDARY_BREED == SECONDARY_BREED_NAME",
+				"     && SPECIES == SPECIES_NAME,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
+				"join2 filter(true) ~> filter1"
 			]
 		}
 	}
