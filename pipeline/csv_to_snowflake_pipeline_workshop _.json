@@ -61,7 +61,7 @@
 							"referenceName": "AzureBlobStorage1",
 							"type": "LinkedServiceReference"
 						},
-						"path": ""
+						"path": "silver"
 					}
 				},
 				"inputs": [
