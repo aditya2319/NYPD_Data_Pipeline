@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Data flow1",
+				"name": "clean_data_stage_load",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -20,7 +20,7 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"Di_job_id": {
-								"value": "'@{pipeline().RunId}'",
+								"value": "'@{substring(pipeline().RunId,1,10)}'",
 								"type": "Expression"
 							}
 						}
