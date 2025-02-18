@@ -40,6 +40,12 @@
 			"transformations": [
 				{
 					"name": "join1"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "join3"
 				}
 			],
 			"scriptLines": [
@@ -105,7 +111,17 @@
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1"
+				"     broadcast: 'auto')~> join1",
+				"join1, locationDim join(LICENSESTAGE@ZIP_CODE == locationDim@ZIP_CODE,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
+				"join2, DATEDIM join(LICENSE_ISSUE_DATE == DT,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join3"
 			]
 		}
 	}
