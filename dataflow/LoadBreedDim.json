@@ -9,21 +9,21 @@
 						"referenceName": "pet_license_stage_v2",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "importingfromstagetable"
 				},
 				{
 					"dataset": {
 						"referenceName": "BREED_DIM",
 						"type": "DatasetReference"
 					},
-					"name": "source2"
+					"name": "maxBreedDim"
 				},
 				{
 					"dataset": {
 						"referenceName": "BREED_DIM",
 						"type": "DatasetReference"
 					},
-					"name": "source3"
+					"name": "importingbreeddim"
 				}
 			],
 			"sinks": [
@@ -32,27 +32,27 @@
 						"referenceName": "BREED_DIM",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "Loadingbreeddim"
 				}
 			],
 			"transformations": [
 				{
-					"name": "join1"
+					"name": "crossJoin"
 				},
 				{
-					"name": "aggregate1"
+					"name": "AggregrateTable"
 				},
 				{
-					"name": "join2"
+					"name": "leftjoin"
 				},
 				{
-					"name": "filter1"
+					"name": "filterringNull"
 				},
 				{
 					"name": "surrogateKey1"
 				},
 				{
-					"name": "derivedColumn1"
+					"name": "SK"
 				}
 			],
 			"scriptLines": [
@@ -69,14 +69,14 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     format: 'table') ~> source1",
+				"     format: 'table') ~> importingfromstagetable",
 				"source(output(",
 				"          MAXBREEDSK as decimal(10,0)",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     query: 'SELECT NVL(MAX(BREED_SK),0) AS\\nMaxBreedSK FROM BREED_DIM',",
-				"     format: 'query') ~> source2",
+				"     format: 'query') ~> maxBreedDim",
 				"source(output(",
 				"          BREED_SK as string,",
 				"          SPECIES_NAME as string,",
@@ -87,32 +87,32 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     format: 'table') ~> source3",
-				"source1, source2 join(1==1,",
+				"     format: 'table') ~> importingbreeddim",
+				"importingfromstagetable, maxBreedDim join(1==1,",
 				"     joinType:'cross',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1",
-				"join1 aggregate(groupBy(SPECIES,",
+				"     broadcast: 'auto')~> crossJoin",
+				"crossJoin aggregate(groupBy(SPECIES,",
 				"          PRIMARY_BREED,",
 				"          SECONDARY_BREED,",
 				"          MAXBREEDSK),",
-				"     count_row = count(LICENSE_NUMBER)) ~> aggregate1",
-				"aggregate1, source3 join(SPECIES == BREED_SK",
+				"     count_row = count(LICENSE_NUMBER)) ~> AggregrateTable",
+				"AggregrateTable, importingbreeddim join(SPECIES == BREED_SK",
 				"     && PRIMARY_BREED == PRIMARY_BREED_NAME",
 				"     && SECONDARY_BREED == SECONDARY_BREED_NAME,",
 				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join2",
-				"join2 filter(isNull(SPECIES_NAME)&&isNull(PRIMARY_BREED_NAME)&&isNull(SECONDARY_BREED_NAME)) ~> filter1",
-				"filter1 keyGenerate(output(RowNum as long),",
+				"     broadcast: 'auto')~> leftjoin",
+				"leftjoin filter(isNull(SPECIES_NAME)&&isNull(PRIMARY_BREED_NAME)&&isNull(SECONDARY_BREED_NAME)) ~> filterringNull",
+				"filterringNull keyGenerate(output(RowNum as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
 				"surrogateKey1 derive(BREED_SK = MAXBREEDSK+RowNum,",
 				"          DI_CREATED_DT = currentTimestamp(),",
-				"          DI_JOB_ID = uuid()) ~> derivedColumn1",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"          DI_JOB_ID = uuid()) ~> SK",
+				"SK sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          BREED_SK as string,",
@@ -138,7 +138,7 @@
 				"          SECONDARY_BREED_NAME = SECONDARY_BREED,",
 				"          DI_JOB_ID,",
 				"          DI_LOAD_DT = DI_CREATED_DT",
-				"     )) ~> sink1"
+				"     )) ~> Loadingbreeddim"
 			]
 		}
 	}

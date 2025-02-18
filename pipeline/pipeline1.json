@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Data flow1",
+				"name": "LoadStageTable",
 				"type": "ExecuteDataFlow",
 				"state": "Inactive",
 				"onInactiveMarkAs": "Succeeded",
@@ -29,13 +29,13 @@
 				}
 			},
 			{
-				"name": "Data flow2",
+				"name": "LoadBreedDim",
 				"type": "ExecuteDataFlow",
 				"state": "Inactive",
 				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
-						"activity": "Data flow1",
+						"activity": "LoadStageTable",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -62,13 +62,13 @@
 				}
 			},
 			{
-				"name": "Data flow3",
+				"name": "LoadingLocationDim",
 				"type": "ExecuteDataFlow",
 				"state": "Inactive",
 				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
-						"activity": "Data flow2",
+						"activity": "LoadBreedDim",
 						"dependencyConditions": [
 							"Succeeded"
 						]
