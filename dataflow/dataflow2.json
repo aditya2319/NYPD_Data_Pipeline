@@ -1,5 +1,5 @@
 {
-	"name": "dataflow1",
+	"name": "dataflow2",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -17,6 +17,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "source2"
+				},
+				{
+					"dataset": {
+						"referenceName": "BREED_DIM",
+						"type": "DatasetReference"
+					},
+					"name": "source3"
 				}
 			],
 			"sinks": [
@@ -34,6 +41,12 @@
 				},
 				{
 					"name": "aggregate1"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "filter1"
 				},
 				{
 					"name": "surrogateKey1"
@@ -64,6 +77,17 @@
 				"     validateSchema: false,",
 				"     query: 'SELECT NVL(MAX(BREED_SK),0) AS\\nMaxBreedSK FROM BREED_DIM',",
 				"     format: 'query') ~> source2",
+				"source(output(",
+				"          BREED_SK as string,",
+				"          SPECIES_NAME as string,",
+				"          PRIMARY_BREED_NAME as string,",
+				"          SECONDARY_BREED_NAME as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> source3",
 				"source1, source2 join(1==1,",
 				"     joinType:'cross',",
 				"     matchType:'exact',",
@@ -73,12 +97,20 @@
 				"          PRIMARY_BREED,",
 				"          SECONDARY_BREED,",
 				"          MAXBREEDSK),",
-				"     COUNT_ROW = count(LICENSE_NUMBER)) ~> aggregate1",
-				"aggregate1 keyGenerate(output(ROW_NUM as long),",
+				"     count_row = count(LICENSE_NUMBER)) ~> aggregate1",
+				"aggregate1, source3 join(SPECIES == BREED_SK",
+				"     && PRIMARY_BREED == PRIMARY_BREED_NAME",
+				"     && SECONDARY_BREED == SECONDARY_BREED_NAME,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
+				"join2 filter(isNull(SPECIES_NAME)&&isNull(PRIMARY_BREED_NAME)&&isNull(SECONDARY_BREED_NAME)) ~> filter1",
+				"filter1 keyGenerate(output(RowNum as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
-				"surrogateKey1 derive(BREED_SK = MAXBREEDSK+ROW_NUM,",
-				"          DI_CREATED_DT = toString(currentDate(), 'yyy-MM-dd'),",
+				"surrogateKey1 derive(BREED_SK = MAXBREEDSK+RowNum,",
+				"          DI_CREATED_DT = currentTimestamp(),",
 				"          DI_JOB_ID = uuid()) ~> derivedColumn1",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
