@@ -1,5 +1,5 @@
 {
-	"name": "dataflow1",
+	"name": "breeddim1",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -94,6 +94,7 @@
 				"     insertable:true,",
 				"     updateable:false,",
 				"     upsertable:false,",
+				"     truncate:true,",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",

@@ -75,16 +75,6 @@
 							}
 						}
 					}
-				],
-				"outputs": [
-					{
-						"referenceName": "SnowflakeTable1",
-						"type": "DatasetReference",
-						"parameters": {
-							"schema_name": "PRACTICE_SCHEMA",
-							"table_name": "PET_LICENSE_STAGE"
-						}
-					}
 				]
 			},
 			{

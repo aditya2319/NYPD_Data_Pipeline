@@ -1,0 +1,112 @@
+{
+	"name": "factLoad",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "pet_license_stage_v2",
+						"type": "DatasetReference"
+					},
+					"name": "LICENSESTAGE"
+				},
+				{
+					"dataset": {
+						"referenceName": "LOCATION_DIM",
+						"type": "DatasetReference"
+					},
+					"name": "locationDim"
+				},
+				{
+					"dataset": {
+						"referenceName": "BREED_DIM",
+						"type": "DatasetReference"
+					},
+					"name": "BREEDDIM"
+				},
+				{
+					"dataset": {
+						"referenceName": "DATE_DIM_PET_LIC",
+						"type": "DatasetReference"
+					},
+					"name": "DATEDIM"
+				},
+				{
+					"name": "source1"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "join1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          LICENSE_ISSUE_DATE as string,",
+				"          LICENSE_NUMBER as string,",
+				"          ANIMAL_NAME as string,",
+				"          SPECIES as string,",
+				"          PRIMARY_BREED as string,",
+				"          SECONDARY_BREED as string,",
+				"          ZIP_CODE as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> LICENSESTAGE",
+				"source(output(",
+				"          LOCATION_SK as string,",
+				"          CITY as string,",
+				"          STATE as string,",
+				"          STATE_ABBR as string,",
+				"          ZIP_CODE as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> locationDim",
+				"source(output(",
+				"          BREED_SK as string,",
+				"          SPECIES_NAME as string,",
+				"          PRIMARY_BREED_NAME as string,",
+				"          SECONDARY_BREED_NAME as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DT as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> BREEDDIM",
+				"source(output(",
+				"          DT as string,",
+				"          ABRV_DAY_NAME as string,",
+				"          MONTH_NAME as string,",
+				"          START_DAY_OF_MONTH as string,",
+				"          END_DAY_OF_MONTH as string,",
+				"          QUARTER_NUM as string,",
+				"          DAY_OF_WEEK as string,",
+				"          IS_WEEKEND as string,",
+				"          YEAR_NUM as string,",
+				"          MONTH_NUM as string,",
+				"          DAY_NUM as string,",
+				"          DATE_DIM_SK as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> DATEDIM",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false) ~> source1",
+				"LICENSESTAGE, BREEDDIM join(PRIMARY_BREED == PRIMARY_BREED_NAME",
+				"     && SECONDARY_BREED == SECONDARY_BREED_NAME",
+				"     && SPECIES == SPECIES_NAME,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1"
+			]
+		}
+	}
+}

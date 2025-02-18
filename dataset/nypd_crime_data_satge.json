@@ -1,5 +1,5 @@
 {
-	"name": "SnowflakeTable2",
+	"name": "nypd_crime_data_satge",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Snowflake2",
