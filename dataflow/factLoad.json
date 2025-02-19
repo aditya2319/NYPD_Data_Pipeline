@@ -33,10 +33,22 @@
 					"name": "DATEDIM"
 				},
 				{
+					"dataset": {
+						"referenceName": "SnowflakeTable1",
+						"type": "DatasetReference"
+					},
 					"name": "source1"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SnowflakeTable1",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "join1"
@@ -46,6 +58,18 @@
 				},
 				{
 					"name": "join3"
+				},
+				{
+					"name": "join4"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "surrogateKey1"
+				},
+				{
+					"name": "derivedColumn1"
 				}
 			],
 			"scriptLines": [
@@ -103,8 +127,13 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table') ~> DATEDIM",
-				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> source1",
+				"source(output(",
+				"          MAX_LIC as decimal(10,0)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     query: 'SELECT NVL(MAX(PET_LIC_SK),0) AS MAX_LIC FROM PRACTICE_SCHEMA.PET_LIC_FCT',",
+				"     format: 'query') ~> source1",
 				"LICENSESTAGE, BREEDDIM join(PRIMARY_BREED == PRIMARY_BREED_NAME",
 				"     && SECONDARY_BREED == SECONDARY_BREED_NAME",
 				"     && SPECIES == SPECIES_NAME,",
@@ -121,7 +150,54 @@
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join3"
+				"     broadcast: 'auto')~> join3",
+				"join3, source1 join(1==1,",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join4",
+				"join4 select(mapColumn(",
+				"          BREED_SK,",
+				"          LOCATION_SK,",
+				"          DATE_DIM_SK,",
+				"          PET_LIC_SK = MAX_LIC,",
+				"          DI_JOB_ID = locationDim@DI_JOB_ID,",
+				"          DI_LOAD_DT = locationDim@DI_LOAD_DT",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 keyGenerate(output(RowNum as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"surrogateKey1 derive(PET_LIC_SK = PET_LIC_SK+RowNum) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          PET_LIC_SK as string,",
+				"          DATE_SK as string,",
+				"          LOCATION_SK as string,",
+				"          BREED_SK as string,",
+				"          LIC_NUM as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_JOB_DT as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     truncate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          PET_LIC_SK,",
+				"          DATE_SK = DATE_DIM_SK,",
+				"          LOCATION_SK,",
+				"          BREED_SK,",
+				"          DI_JOB_ID,",
+				"          DI_JOB_DT = DI_LOAD_DT",
+				"     )) ~> sink1"
 			]
 		}
 	}
