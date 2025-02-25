@@ -37,7 +37,7 @@
 						"referenceName": "SnowflakeTable1",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "MaxPetLic"
 				}
 			],
 			"sinks": [
@@ -51,13 +51,13 @@
 			],
 			"transformations": [
 				{
-					"name": "join1"
+					"name": "JoinBreedDim"
 				},
 				{
-					"name": "join2"
+					"name": "joinbreedandlocation"
 				},
 				{
-					"name": "join3"
+					"name": "joindatedim"
 				},
 				{
 					"name": "join4"
@@ -133,25 +133,25 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     query: 'SELECT NVL(MAX(PET_LIC_SK),0) AS MAX_LIC FROM PRACTICE_SCHEMA.PET_LIC_FCT',",
-				"     format: 'query') ~> source1",
+				"     format: 'query') ~> MaxPetLic",
 				"LICENSESTAGE, BREEDDIM join(PRIMARY_BREED == PRIMARY_BREED_NAME",
 				"     && SECONDARY_BREED == SECONDARY_BREED_NAME",
 				"     && SPECIES == SPECIES_NAME,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1",
-				"join1, locationDim join(LICENSESTAGE@ZIP_CODE == locationDim@ZIP_CODE,",
+				"     broadcast: 'auto')~> JoinBreedDim",
+				"JoinBreedDim, locationDim join(LICENSESTAGE@ZIP_CODE == locationDim@ZIP_CODE,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join2",
-				"join2, DATEDIM join(LICENSE_ISSUE_DATE == DT,",
+				"     broadcast: 'auto')~> joinbreedandlocation",
+				"joinbreedandlocation, DATEDIM join(LICENSE_ISSUE_DATE == DT,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join3",
-				"join3, source1 join(1==1,",
+				"     broadcast: 'auto')~> joindatedim",
+				"joindatedim, MaxPetLic join(1==1,",
 				"     joinType:'cross',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
