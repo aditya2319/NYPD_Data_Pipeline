@@ -158,6 +158,7 @@
 				"     broadcast: 'auto')~> join4",
 				"join4 select(mapColumn(",
 				"          BREED_SK,",
+				"          LICENSE_NUMBER,",
 				"          LOCATION_SK,",
 				"          DATE_DIM_SK,",
 				"          PET_LIC_SK = MAX_LIC,",
@@ -196,7 +197,8 @@
 				"          LOCATION_SK,",
 				"          BREED_SK,",
 				"          DI_JOB_ID,",
-				"          DI_JOB_DT = DI_LOAD_DT",
+				"          DI_JOB_DT = DI_LOAD_DT,",
+				"          LIC_NUM = LICENSE_NUMBER",
 				"     )) ~> sink1"
 			]
 		}
