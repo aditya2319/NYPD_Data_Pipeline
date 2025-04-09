@@ -31,7 +31,9 @@ Designed predictive analytics to identify potential high-crime areas
 Some Examples:
 
 ![image](https://github.com/user-attachments/assets/63b7d2cb-a554-4ae6-b88f-c2f4c93900f3)
+
 ![image](https://github.com/user-attachments/assets/b7aab913-b2ef-40a7-b0e9-ce498da0962d)
+
 ![image](https://github.com/user-attachments/assets/a3fa640e-88d5-4be3-be69-7befa1857920)
 
 
